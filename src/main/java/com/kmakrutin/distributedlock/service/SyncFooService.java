@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,13 @@ public class SyncFooService {
 
     private static final String LOCK_NAME = "fooServiceLock";
 
+    @Value("${enable.distributed.lock:false}")
+    private boolean enableDistributedLock;
+
     public List<Foo> getFoos() throws InterruptedException {
+        if (!enableDistributedLock) {
+            return fooService.getFoos();
+        }
 
         RLock lock = redissonClient.getLock(LOCK_NAME);
         boolean acquired = lock.tryLock(10, 30, TimeUnit.SECONDS);
