@@ -15,6 +15,6 @@ public class Foo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private int id;
+    private String id;
     private String data;
 }

@@ -6,27 +6,26 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 
 @Slf4j
 @Service
 public class FooService {
 
-    @Cacheable("foos")
-    public List<Foo> getFoos() throws InterruptedException {
-        log.info(">>> Getting foos");
+    @Cacheable(value = "foo", key = "#delay")
+    public Foo getFoo(int delay) throws InterruptedException {
+        final String id = UUID.randomUUID().toString();
 
-        Thread.sleep(2000); // Emulate delay of 2 seconds
+        log.info(">>> Getting foo with id {} and {} seconds delay", id, delay);
 
-        return Arrays.asList(
-                new Foo(1, "foo-data-1"),
-                new Foo(2, "foo-data-2"),
-                new Foo(3, "foo-data-3")
-        );
+        TimeUnit.SECONDS.sleep(delay); // Emulate delay
+
+        return new Foo(id, "foo-with-delay-" + delay);
     }
 
-    @CacheEvict(value = "foos", allEntries = true)
+    @CacheEvict(value = "foo", allEntries = true)
     public void evictFoosCache() {
         // no-op
     }
